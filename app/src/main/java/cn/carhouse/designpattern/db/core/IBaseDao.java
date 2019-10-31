@@ -19,7 +19,17 @@ public interface IBaseDao<T> {
     long insert(T bean);
 
     /**
+     * 批量插入,带完成回调
+     */
+    void insert(List<T> beans, OnInsertListener onInsertListener);
+
+    /**
      * 批量插入
      */
     void insert(List<T> beans);
+
+
+    interface OnInsertListener {
+        void onInserted();
+    }
 }

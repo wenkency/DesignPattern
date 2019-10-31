@@ -26,22 +26,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void test(View view) {
-        new Thread(new Runnable() {
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            User user = new User();
+            user.setId(i);
+            user.setName("Lven");
+            user.setImage("image" + i);
+            users.add(user);
+        }
+        final long begin = System.currentTimeMillis();
+        mUserDao.insert(users, new IBaseDao.OnInsertListener() {
             @Override
-            public void run() {
-                List<User> users = new ArrayList<>();
-                for (int i = 0; i < 10005; i++) {
-                    User user = new User();
-                    user.setId(i);
-                    user.setName("Lven");
-                    users.add(user);
-                }
-                long begin = System.currentTimeMillis();
-                mUserDao.insert(users);
+            public void onInserted() {
                 long end = System.currentTimeMillis() - begin;
                 Log.e("insert", "insert-->" + end);
             }
-        }).start();
+        });
+
 
     }
 }

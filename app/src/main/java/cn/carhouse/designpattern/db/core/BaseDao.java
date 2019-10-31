@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.carhouse.designpattern.db.utils.TableUtils;
+import cn.carhouse.designpattern.db.utils.ThreadManager;
 
 public class BaseDao<T> implements IBaseDao<T> {
     private boolean isInit = false;
@@ -65,20 +66,34 @@ public class BaseDao<T> implements IBaseDao<T> {
 
     @Override
     public void insert(List<T> beans) {
-        try {
-            //开启事务
-            mSQLite.beginTransaction();
-            for (T bean : beans) {
-                insert(bean);
+        insert(beans, null);
+    }
+
+    @Override
+    public void insert(final List<T> beans, final OnInsertListener onInsertListener) {
+        ThreadManager.getNormalPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // 开启事务
+                    mSQLite.beginTransaction();
+                    for (T bean : beans) {
+                        insert(bean);
+                    }
+                    // 告诉数据库事务提交成功
+                    mSQLite.setTransactionSuccessful();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    // 结束事务
+                    mSQLite.endTransaction();
+                }
+                // 完成回调
+                if (onInsertListener != null) {
+                    onInsertListener.onInserted();
+                }
             }
-            //告诉数据库事务提交成功
-            mSQLite.setTransactionSuccessful();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            //结束事务
-            mSQLite.endTransaction();
-        }
+        });
     }
 
     @Override
