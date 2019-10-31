@@ -10,19 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.carhouse.designpattern.bean.User;
-import cn.carhouse.designpattern.db.core.DaoFactory;
-import cn.carhouse.designpattern.db.core.IBaseDao;
+import cn.carhouse.designpattern.db.core.QuickDaoFactory;
+import cn.carhouse.designpattern.db.core.IQuickDao;
+import cn.carhouse.designpattern.db.core.QuerySupport;
 
 public class MainActivity extends AppCompatActivity {
 
-    private IBaseDao<User> mUserDao;
+    private IQuickDao<User> mUserDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mUserDao = DaoFactory.getInstance().getBaseDao(User.class);
-
+        mUserDao = QuickDaoFactory.getInstance().getBaseDao(User.class);
     }
 
     public void insert(View view) {
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
             users.add(user);
         }
         final long begin = System.currentTimeMillis();
-        mUserDao.insert(users, new IBaseDao.OnInsertListener() {
+        mUserDao.insert(users, new IQuickDao.OnInsertListener() {
             @Override
             public void onInserted() {
                 long end = System.currentTimeMillis() - begin;
@@ -68,6 +68,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void query(View view) {
+        QuerySupport<User> query = mUserDao.query();
+        User user = new User();
+        user.setName("lfw");
+        query.query(user, new QuerySupport.OnQueryListener<User>() {
+            @Override
+            public void onQueried(List<User> list) {
+                for (User u : list) {
+                    Log.e("MainActivity", u.toString());
+                }
+            }
+        });
 
     }
 }

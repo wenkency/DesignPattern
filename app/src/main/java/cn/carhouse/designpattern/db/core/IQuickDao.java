@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * 数据库Dao
  */
-public interface IBaseDao<T> {
+public interface IQuickDao<T> {
     /**
      * 初始化
      */
@@ -36,8 +36,18 @@ public interface IBaseDao<T> {
      */
     int update(T bean, T where);
 
+    /**
+     * 删除
+     *
+     * @param where 限制条件
+     * @return
+     */
     int delete(T where);
 
+    /**
+     * 查询封装
+     */
+    QuerySupport<T> query();
 
     interface OnInsertListener {
         void onInserted();
