@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +102,37 @@ public class BaseDao<T> implements IBaseDao<T> {
         return mSQLite.insert(mTableName, null, getContentValues(bean));
     }
 
+    @Override
+    public int update(T bean, T where) {
+        DaoParams params = new DaoParams(getParams(where));
+        return mSQLite.update(mTableName, getContentValues(bean), params.whereClause, params.whereArgs);
+    }
+
+    @Override
+    public int delete(T where) {
+        DaoParams params = new DaoParams(getParams(where));
+        return mSQLite.delete(mTableName, params.whereClause, params.whereArgs);
+    }
+
+    private static class DaoParams {
+        String whereClause;
+        String[] whereArgs;
+
+        private DaoParams(Map<String, String> map) {
+            // update table where 1=1 and id = 1 set name = 'lfw'
+            StringBuffer sb = new StringBuffer();
+            sb.append("1=1");
+            List<String> list = new ArrayList<>();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                sb.append(" and " + key + "=?");
+                list.add(value);
+            }
+            whereClause = sb.toString();
+            whereArgs = list.toArray(new String[list.size()]);
+        }
+    }
 
     private ContentValues getContentValues(T bean) {
         ContentValues values = new ContentValues();
@@ -122,5 +154,27 @@ public class BaseDao<T> implements IBaseDao<T> {
             }
         }
         return values;
+    }
+
+    private Map<String, String> getParams(T bean) {
+        Map<String, String> map = new HashMap<>();
+        // 循环数据库里面表结构对应的字段
+        for (Map.Entry<String, Field> entry : mTableFields.entrySet()) {
+            try {
+                String key = entry.getKey();
+                Field field = entry.getValue();
+                Object obj = field.get(bean);
+                if (obj != null) {
+                    String value = obj.toString();
+                    if (TextUtils.isEmpty(key) || TextUtils.isEmpty(value)) {
+                        continue;
+                    }
+                    map.put(key, value);
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+        return map;
     }
 }

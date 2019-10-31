@@ -6,12 +6,12 @@ import cn.carhouse.designpattern.db.annotation.DBTable;
 @DBTable("tb_user")
 public class User {
     @DBField("_id")
-    private int id;
+    private Integer id;
     private String name;
 
     private String image;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

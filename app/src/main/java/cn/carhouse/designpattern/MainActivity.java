@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void test(View view) {
+    public void insert(View view) {
         List<User> users = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             User user = new User();
@@ -39,10 +39,35 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onInserted() {
                 long end = System.currentTimeMillis() - begin;
-                Log.e("insert", "insert-->" + end);
+                Log.e("MainActivity", "insert-->" + end);
             }
         });
+    }
 
+    public void delete(View view) {
+        // 删除 id=0 并且 name=Lven的
+        User where = new User();
+        where.setId(0);
+        where.setName("Lven");
+        int delete = mUserDao.delete(where);
+        Log.e("MainActivity", "delete-->" + delete);
+    }
+
+    public void update(View view) {
+        // update table where _id = 1 set name = 'lfw'
+
+        User bean = new User();
+        bean.setName("lfw");
+
+        //  将ID =1 的名字改成lfw
+        User where = new User();
+        where.setId(1);
+        int update = mUserDao.update(bean, where);
+        Log.e("MainActivity", "update-->" + update);
+    }
+
+
+    public void query(View view) {
 
     }
 }

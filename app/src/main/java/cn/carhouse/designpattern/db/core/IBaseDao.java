@@ -28,6 +28,16 @@ public interface IBaseDao<T> {
      */
     void insert(List<T> beans);
 
+    /**
+     * 更新
+     *
+     * @param bean  改成最终结果
+     * @param where 限制条件例如: where id=6
+     */
+    int update(T bean, T where);
+
+    int delete(T where);
+
 
     interface OnInsertListener {
         void onInserted();
