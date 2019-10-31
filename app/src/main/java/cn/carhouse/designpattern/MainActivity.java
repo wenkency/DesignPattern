@@ -1,32 +1,47 @@
 package cn.carhouse.designpattern;
 
-import androidx.appcompat.app.AlertDialog;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.os.Bundle;
+import java.util.ArrayList;
+import java.util.List;
 
-import cn.carhouse.designpattern.builder.title.DefTitleBar;
-import cn.carhouse.designpattern.builder.title.DefTitleBuilder;
+import cn.carhouse.designpattern.bean.User;
+import cn.carhouse.designpattern.db.core.DaoFactory;
+import cn.carhouse.designpattern.db.core.IBaseDao;
 
 public class MainActivity extends AppCompatActivity {
+
+    private IBaseDao<User> mUserDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        DefTitleBar titleBar = DefTitleBuilder.create(this).build();
-        titleBar.seTitle("主页面");
-        titleBar.colorStyle(Color.parseColor("#008577"), false);
+        mUserDao = DaoFactory.getInstance().getBaseDao(User.class);
 
-        AlertDialog dialog = new AlertDialog.Builder(this).create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+    }
+
+    public void test(View view) {
+        new Thread(new Runnable() {
             @Override
-            public void onShow(DialogInterface dialog) {
-
+            public void run() {
+                List<User> users = new ArrayList<>();
+                for (int i = 0; i < 10005; i++) {
+                    User user = new User();
+                    user.setId(i);
+                    user.setName("Lven");
+                    users.add(user);
+                }
+                long begin = System.currentTimeMillis();
+                mUserDao.insert(users);
+                long end = System.currentTimeMillis() - begin;
+                Log.e("insert", "insert-->" + end);
             }
-        });
-        dialog.show();
+        }).start();
+
     }
 }
