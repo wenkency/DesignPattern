@@ -3,35 +3,40 @@ package cn.carhouse.designpattern;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import cn.carhouse.designpattern.bean.Photo;
 import cn.carhouse.designpattern.bean.User;
-import cn.carhouse.designpattern.db.core.QuickDaoFactory;
 import cn.carhouse.designpattern.db.core.IQuickDao;
 import cn.carhouse.designpattern.db.core.QuerySupport;
+import cn.carhouse.designpattern.db.core.QuickDaoFactory;
+import cn.carhouse.designpattern.db.subdb.UserDao;
 
 public class MainActivity extends AppCompatActivity {
 
-    private IQuickDao<User> mUserDao;
+    private UserDao mUserDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mUserDao = QuickDaoFactory.getInstance().getBaseDao(User.class);
+        mUserDao = QuickDaoFactory.getInstance().getQuickDao(UserDao.class, User.class);
     }
 
     public void insert(View view) {
         List<User> users = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 5; i++) {
             User user = new User();
             user.setId(i);
             user.setName("Lven");
             user.setImage("image" + i);
+            user.setState(i);
             users.add(user);
         }
         final long begin = System.currentTimeMillis();
@@ -54,31 +59,73 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void update(View view) {
-        // update table where _id = 1 set name = 'lfw'
-
+        // update emp set salary=4000,job='ccc' where name='zs';
         User bean = new User();
-        bean.setName("lfw");
-
+        bean.setState(0);
         //  将ID =1 的名字改成lfw
         User where = new User();
         where.setId(1);
-        int update = mUserDao.update(bean, where);
+        int update = mUserDao.update(bean);
         Log.e("MainActivity", "update-->" + update);
     }
 
+    public void defLogin(View view) {
+        // 用户登录成功后调用
+        User bean = new User();
+        bean.setId(100);
+        bean.setName("LFW");
+        bean.setState(1);
+        bean.setImage("image");
+        mUserDao.onLogin(bean);
+    }
+
+    public void changeLogin(View view) {
+        // 用户登录成功后调用
+        User bean = new User();
+        bean.setId(0);
+        bean.setName("LFW");
+        bean.setState(1);
+        bean.setImage("image");
+        mUserDao.onLogin(bean);
+    }
+
+    public void subInsert(View view) {
+        Photo photo = new Photo();
+        photo.setPath("data/data/my.jpg");
+        photo.setTime(new Date().toString());
+        IQuickDao<Photo> photoDao = QuickDaoFactory.getInstance().getSubQuickDao(Photo.class);
+        long insert = photoDao.insert(photo);
+        Toast.makeText(this, "执行成功!" + insert, Toast.LENGTH_LONG).show();
+    }
+
+    public void subQuery(View view) {
+        IQuickDao<Photo> photoDao = QuickDaoFactory.getInstance().getSubQuickDao(Photo.class);
+        List<Photo> photos = photoDao.query().queryAll();
+        for (Photo u : photos) {
+            Log.e("MainActivity", u.toString());
+        }
+    }
 
     public void query(View view) {
         QuerySupport<User> query = mUserDao.query();
-        User user = new User();
-        user.setName("lfw");
-        query.query(user, new QuerySupport.OnQueryListener<User>() {
+        query.limit("0 , 10");
+        List<User> list = query.query();
+        for (User u : list) {
+            Log.e("MainActivity", u.toString());
+        }
+    }
+
+    public void asyncQuery(View view) {
+        QuerySupport<User> query = mUserDao.query();
+        query.limit("0 , 10");
+        query.asyncQuery(new QuerySupport.OnAsyncQueryListener<User>() {
             @Override
-            public void onQueried(List<User> list) {
-                for (User u : list) {
+            public void onAsyncQueried(List<User> items) {
+                for (User u : items) {
                     Log.e("MainActivity", u.toString());
                 }
             }
         });
-
     }
+
 }

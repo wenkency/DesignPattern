@@ -1,18 +1,18 @@
 package cn.carhouse.designpattern.db.core;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.text.TextUtils;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.carhouse.designpattern.db.utils.QuickDaoUtils;
 import cn.carhouse.designpattern.db.utils.ThreadManager;
 
+/**
+ * 数据库操作类
+ */
 public class QuickDao<T> implements IQuickDao<T> {
     private boolean isInit = false;
     private SQLiteDatabase mSQLite;
@@ -85,6 +85,12 @@ public class QuickDao<T> implements IQuickDao<T> {
     }
 
     @Override
+    public int update(T bean) {
+        ContentValues values = QuickDaoUtils.getContentValues(bean, mTableFields);
+        return mSQLite.update(mTableName, values, null, null);
+    }
+
+    @Override
     public int delete(T where) {
         QuickDaoParams params = new QuickDaoParams(QuickDaoUtils.getParams(where, mTableFields));
         return mSQLite.delete(mTableName, params.whereClause, params.whereArgs);
@@ -98,5 +104,12 @@ public class QuickDao<T> implements IQuickDao<T> {
         return mQuerySupport;
     }
 
+    @Override
+    public void execSQL(String sql) {
+        mSQLite.execSQL(sql);
+    }
 
+    public String getTableName() {
+        return mTableName;
+    }
 }

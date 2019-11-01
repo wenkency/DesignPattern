@@ -11,8 +11,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.carhouse.designpattern.db.annotation.DBField;
-import cn.carhouse.designpattern.db.annotation.DBTable;
+import cn.carhouse.designpattern.db.annotation.DbField;
+import cn.carhouse.designpattern.db.annotation.DbTable;
 
 public class QuickDaoUtils {
     /**
@@ -47,7 +47,7 @@ public class QuickDaoUtils {
      */
     public static String getName(Field field) {
         String name = field.getName();
-        DBField dbField = field.getAnnotation(DBField.class);
+        DbField dbField = field.getAnnotation(DbField.class);
         if (dbField != null && !TextUtils.isEmpty(dbField.value())) {
             name = dbField.value();
         }
@@ -80,7 +80,7 @@ public class QuickDaoUtils {
      * 获取表名
      */
     public static String getTableName(Class entity) {
-        DBTable table = (DBTable) entity.getAnnotation(DBTable.class);
+        DbTable table = (DbTable) entity.getAnnotation(DbTable.class);
         if (table != null && !TextUtils.isEmpty(table.value())) {
             return table.value();
         }

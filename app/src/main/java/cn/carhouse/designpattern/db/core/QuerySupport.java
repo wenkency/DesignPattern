@@ -18,6 +18,7 @@ import cn.carhouse.designpattern.db.utils.ThreadManager;
  * 查询封装对象
  */
 public class QuerySupport<T> {
+    private static Handler mHandler = new Handler(Looper.getMainLooper());
     // 查询的列
     private String[] mQueryColumns;
     // 查询的条件
@@ -37,8 +38,8 @@ public class QuerySupport<T> {
     private SQLiteDatabase mSQLiteDatabase;
     private Map<String, Field> mTableFields;
     private final String mTableName;
-    private OnQueryListener<T> onQueryListener;
-    private static Handler mHandler = new Handler(Looper.getMainLooper());
+    private OnAsyncQueryListener<T> onAsynQueryListener;
+
 
     public QuerySupport(SQLiteDatabase sqLiteDatabase, Class<T> clazz, Map<String, Field> tableFields) {
         this.mClass = clazz;
@@ -82,50 +83,54 @@ public class QuerySupport<T> {
         return this;
     }
 
-    public QuerySupport setOnQueryListener(OnQueryListener<T> onQueryListener) {
-        this.onQueryListener = onQueryListener;
-        return this;
-    }
-
-    public List<T> query(String sql) {
-        return null;
-    }
-
-    public void query(final OnQueryListener<T> onQueryListener) {
-        // 开线程去查询
-        ThreadManager.getNormalPool().execute(new Runnable() {
-            @Override
-            public void run() {
-                Cursor cursor = mSQLiteDatabase.query(mTableName, mQueryColumns, mQuerySelection,
-                        mQuerySelectionArgs, mQueryGroupBy, mQueryHaving, mQueryOrderBy, mQueryLimit);
-                clearQueryParams();
-                List<T> list = cursorToList(cursor);
-                onQueryCallback(list, onQueryListener);
-            }
-        });
+    /**
+     * 所有查询最终执行的方法
+     */
+    public List<T> query() {
+        Cursor cursor = mSQLiteDatabase.query(mTableName, mQueryColumns, mQuerySelection,
+                mQuerySelectionArgs, mQueryGroupBy, mQueryHaving, mQueryOrderBy, mQueryLimit);
+        clearQueryParams();
+        return cursorToList(cursor);
     }
 
     /**
-     * 回调到UI线程
-     *
-     * @param list
-     * @param onQueryListener
+     * 异步查询
      */
-    private void onQueryCallback(final List<T> list, final OnQueryListener<T> onQueryListener) {
+    public void asyncQuery() {
+        if (onAsynQueryListener == null) {
+            return;
+        }
+        ThreadManager.getNormalPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                // 调的还是查询方法
+                asyncQueryCallback(query());
+            }
+        });
+    }
+
+    public void asyncQuery(OnAsyncQueryListener<T> listener) {
+        this.onAsynQueryListener = listener;
+        asyncQuery();
+    }
+
+    private void asyncQueryCallback(final List<T> items) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                onQueryListener.onQueried(list);
+                if (onAsynQueryListener != null) {
+                    onAsynQueryListener.onAsyncQueried(items);
+                }
             }
         });
     }
 
 
-    public void query(T where, OnQueryListener<T> onQueryListener) {
-        query(where, null, null, null, onQueryListener);
+    public List<T> query(T where) {
+        return query(where, null, null, null);
     }
 
-    public void query(T where, String orderBy, String startIndex, String limit, OnQueryListener<T> onQueryListener) {
+    public List<T> query(T where, String orderBy, String startIndex, String limit) {
         QuickDaoParams params = new QuickDaoParams(QuickDaoUtils.getParams(where, mTableFields));
         String queryLimit = null;
         if (!TextUtils.isEmpty(startIndex) && !TextUtils.isEmpty(limit)) {
@@ -136,13 +141,13 @@ public class QuerySupport<T> {
         mQuerySelectionArgs = params.whereArgs;
         mQueryLimit = queryLimit;
         mQueryOrderBy = orderBy;
-        query(onQueryListener);
+        return query();
     }
 
 
-    public void queryAll(OnQueryListener<T> onQueryListener) {
+    public List<T> queryAll() {
         clearQueryParams();
-        query(onQueryListener);
+        return query();
     }
 
     /**
@@ -210,8 +215,14 @@ public class QuerySupport<T> {
         return items;
     }
 
+    /**
+     * 异步查询回调监听
+     */
+    public interface OnAsyncQueryListener<T> {
+        void onAsyncQueried(List<T> items);
+    }
 
-    public interface OnQueryListener<T> {
-        void onQueried(List<T> list);
+    public void setOnAsynQueryListener(OnAsyncQueryListener<T> onAsynQueryListener) {
+        this.onAsynQueryListener = onAsynQueryListener;
     }
 }

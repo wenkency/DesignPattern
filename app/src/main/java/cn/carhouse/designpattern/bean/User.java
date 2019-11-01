@@ -1,13 +1,16 @@
 package cn.carhouse.designpattern.bean;
 
-import cn.carhouse.designpattern.db.annotation.DBField;
-import cn.carhouse.designpattern.db.annotation.DBTable;
+import cn.carhouse.designpattern.db.annotation.DbField;
+import cn.carhouse.designpattern.db.annotation.DbTable;
 
-@DBTable("tb_user")
+@DbTable("tb_user")
 public class User {
-    @DBField("_id")
+    @DbField("_id")
     private Integer id;
     private String name;
+
+    // 登录状态
+    private int state;
 
     private String image;
 
@@ -40,7 +43,17 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", state=" + state +
                 ", image='" + image + '\'' +
                 '}';
     }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
 }
+

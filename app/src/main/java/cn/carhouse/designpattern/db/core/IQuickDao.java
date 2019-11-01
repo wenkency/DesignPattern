@@ -37,6 +37,13 @@ public interface IQuickDao<T> {
     int update(T bean, T where);
 
     /**
+     * 更新
+     *
+     * @param bean 改成最终结果
+     */
+    int update(T bean);
+
+    /**
      * 删除
      *
      * @param where 限制条件
@@ -48,6 +55,16 @@ public interface IQuickDao<T> {
      * 查询封装
      */
     QuerySupport<T> query();
+
+    /**
+     * 表名
+     */
+    String getTableName();
+
+    /**
+     * 执行用户的Sql语句
+     */
+    void execSQL(String sql);
 
     interface OnInsertListener {
         void onInserted();
