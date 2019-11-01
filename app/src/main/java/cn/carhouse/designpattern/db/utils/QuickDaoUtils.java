@@ -88,7 +88,7 @@ public class QuickDaoUtils {
     }
 
     public static File getFile(Context context, String name) {
-        File directory = context.getFilesDir();
+        File directory = new File(context.getFilesDir(), "database");
         if (!directory.exists()) {
             directory.mkdirs();
         }
@@ -107,11 +107,11 @@ public class QuickDaoUtils {
      * 缓存表结构里面对应的成员字段，目的是怕对象添加新字段，表没有添加
      * key:表格列名   value:成员字段
      */
-    public static Map<String, Field> getTableFields(Class entity, SQLiteDatabase sqlIte) {
+    public static Map<String, Field> getTableFields(Class entity, SQLiteDatabase sqLite) {
         Map<String, Field> tableFields = new HashMap<>();
         // 1.取到所有的列名
         String sql = "select * from " + getTableName(entity) + " limit 1,0";// 空表
-        Cursor cursor = sqlIte.rawQuery(sql, null);
+        Cursor cursor = sqLite.rawQuery(sql, null);
         String[] columnNames = cursor.getColumnNames();
         // 2.取所有的成员变量
         Field[] fields = entity.getDeclaredFields();

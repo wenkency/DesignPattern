@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.carhouse.designpattern.db.utils.QuickDaoUtils;
-import cn.carhouse.designpattern.db.utils.ThreadManager;
+import cn.carhouse.designpattern.db.utils.ThreadUtils;
 
 /**
  * 数据库操作类
@@ -46,7 +46,7 @@ public class QuickDao<T> implements IQuickDao<T> {
 
     @Override
     public void insert(final List<T> beans, final OnInsertListener onInsertListener) {
-        ThreadManager.getNormalPool().execute(new Runnable() {
+        ThreadUtils.getNormalPool().execute(new Runnable() {
             @Override
             public void run() {
                 try {

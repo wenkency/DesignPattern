@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.carhouse.designpattern.db.utils.QuickDaoUtils;
-import cn.carhouse.designpattern.db.utils.ThreadManager;
+import cn.carhouse.designpattern.db.utils.ThreadUtils;
 
 /**
  * 查询封装对象
@@ -100,7 +100,7 @@ public class QuerySupport<T> {
         if (onAsynQueryListener == null) {
             return;
         }
-        ThreadManager.getNormalPool().execute(new Runnable() {
+        ThreadUtils.getNormalPool().execute(new Runnable() {
             @Override
             public void run() {
                 // 调的还是查询方法

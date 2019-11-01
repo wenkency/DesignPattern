@@ -10,12 +10,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /*
- *  @文件名:   ThreadManager
+ *  @文件名:   ThreadUtils
  *  @创建者:   Administrator
  *  @创建时间:  2015/11/23 11:27
  *  @描述：    线程管理类，管理线程池，一个应用中有多个线程池，每个线程池做自己相关的业务
  */
-public class ThreadManager {
+public class ThreadUtils {
 
     private static ThreadPoolProxy mNormalPool = new ThreadPoolProxy(5, 5, 5 * 1000);
 
