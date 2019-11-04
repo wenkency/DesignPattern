@@ -1,25 +1,22 @@
 package cn.carhouse.designpattern.bean;
 
-import cn.carhouse.designpattern.db.annotation.DbField;
 import cn.carhouse.designpattern.db.annotation.DbTable;
 
 @DbTable("tb_user")
 public class User {
-    @DbField("_id")
-    private Integer id;
+    private String userId;
     private String name;
-
     // 登录状态
     private int state;
+    private String password;
+    private String loginName;
 
-    private String image;
-
-    public Integer getId() {
-        return id;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -30,23 +27,6 @@ public class User {
         this.name = name;
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", state=" + state +
-                ", image='" + image + '\'' +
-                '}';
-    }
 
     public int getState() {
         return state;
@@ -54,6 +34,33 @@ public class User {
 
     public void setState(int state) {
         this.state = state;
+    }
+
+    public String getLoginName() {
+        return loginName;
+    }
+
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", state=" + state +
+                ", password='" + password + '\'' +
+                ", loginName='" + loginName + '\'' +
+                '}';
     }
 }
 

@@ -10,10 +10,10 @@ import cn.carhouse.designpattern.db.core.QuickDaoFactory;
 public enum PrivateDBEnums {
     path("");
 
-    private String name;
+    private String userId;
 
-    PrivateDBEnums(String name) {
-        this.name = name;
+    PrivateDBEnums(String userId) {
+        this.userId = userId;
     }
 
     public String getValue() {
@@ -21,9 +21,9 @@ public enum PrivateDBEnums {
         if (userDao != null) {
             User user = userDao.getCurrentUser();
             if (user != null) {
-                return user.getId() + "_login.db";
+                return user.getUserId();
             }
         }
-        return name;
+        return userId;
     }
 }

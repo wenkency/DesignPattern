@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import cn.carhouse.designpattern.R;
 import cn.carhouse.designpattern.bean.Photo;
 import cn.carhouse.designpattern.bean.User;
 import cn.carhouse.designpattern.db.core.IQuickDao;
 import cn.carhouse.designpattern.db.core.QuerySupport;
 import cn.carhouse.designpattern.db.core.QuickDaoFactory;
 import cn.carhouse.designpattern.db.subdb.UserDao;
+import cn.carhouse.designpattern.db.update.UpdateDbUtils;
 
 /**
  * 数据库测试类
@@ -25,6 +25,7 @@ import cn.carhouse.designpattern.db.subdb.UserDao;
 public class DatabaseActivity extends AppCompatActivity {
 
     private UserDao mUserDao;
+    UpdateDbUtils updateDbUtils = new UpdateDbUtils();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +36,12 @@ public class DatabaseActivity extends AppCompatActivity {
 
     public void insert(View view) {
         List<User> users = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 2; i++) {
             User user = new User();
-            user.setId(i);
+            user.setUserId(i + "");
             user.setName("Lven");
-            user.setImage("image" + i);
             user.setState(i);
+            user.setPassword("Lven" + i);
             users.add(user);
         }
         final long begin = System.currentTimeMillis();
@@ -56,7 +57,7 @@ public class DatabaseActivity extends AppCompatActivity {
     public void delete(View view) {
         // 删除 id=0 并且 name=Lven的
         User where = new User();
-        where.setId(0);
+        where.setUserId("0");
         where.setName("Lven");
         int delete = mUserDao.delete(where);
         Log.e("MainActivity", "delete-->" + delete);
@@ -68,7 +69,7 @@ public class DatabaseActivity extends AppCompatActivity {
         bean.setState(0);
         //  将ID =1 的名字改成lfw
         User where = new User();
-        where.setId(1);
+        where.setUserId("1");
         int update = mUserDao.update(bean);
         Log.e("MainActivity", "update-->" + update);
     }
@@ -76,20 +77,18 @@ public class DatabaseActivity extends AppCompatActivity {
     public void defLogin(View view) {
         // 用户登录成功后调用
         User bean = new User();
-        bean.setId(100);
+        bean.setUserId(100 + "");
         bean.setName("LFW");
         bean.setState(1);
-        bean.setImage("image");
         mUserDao.onLogin(bean);
     }
 
     public void changeLogin(View view) {
         // 用户登录成功后调用
         User bean = new User();
-        bean.setId(0);
+        bean.setUserId(0 + "");
         bean.setName("LFW");
         bean.setState(1);
-        bean.setImage("image");
         mUserDao.onLogin(bean);
     }
 
@@ -132,4 +131,10 @@ public class DatabaseActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 更新数据库版本
+     */
+    public void updateDb(View view) {
+        updateDbUtils.update(this, "V002", "V003");
+    }
 }

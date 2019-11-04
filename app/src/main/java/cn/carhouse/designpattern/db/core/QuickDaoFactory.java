@@ -2,8 +2,8 @@ package cn.carhouse.designpattern.db.core;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +15,10 @@ import cn.carhouse.designpattern.db.utils.QuickDaoUtils;
  * 数据库查询
  */
 public class QuickDaoFactory {
-    // 应用数据库的名称
-    public static final String DB_NAME = "acxwb.db";
+    // 公共数据库：包名/database/user.db
+    // 私有数据库: 包名/database/userId/login.db
+
+
     private static QuickDaoFactory mInstance;
     // 公共库操作
     private SQLiteDatabase mSqLiteDatabase;
@@ -24,6 +26,10 @@ public class QuickDaoFactory {
 
     // 定义一个用于实现分库的数据库操作对象
     protected SQLiteDatabase mSubSQLiteDatabase;
+
+    private Class mEntity;
+
+    private String mUserId;
 
     // 设计一个数据库连接池
     protected Map<String, IQuickDao> mCacheMap = Collections.synchronizedMap(new HashMap<String, IQuickDao>());
@@ -47,12 +53,8 @@ public class QuickDaoFactory {
      */
     public void init(Context context) {
         this.mContext = context;
-        File dbFile = QuickDaoUtils.getFile(context, DB_NAME);
-        if (!dbFile.exists()) {
-            mSqLiteDatabase = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
-        } else {
-            mSqLiteDatabase = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
-        }
+        closeSQLiteDatabase();
+        mSqLiteDatabase = QuickDaoUtils.getPublicSQLiteDatabase(context);
     }
 
     /**
@@ -62,6 +64,7 @@ public class QuickDaoFactory {
         if (sqLiteDatabase == null) {
             throw new RuntimeException("SQLiteDatabase is null ");
         }
+        this.mEntity = clazz;
         // 从缓存取
         IQuickDao quickDao = mCacheMap.get(key);
         if (quickDao != null) {
@@ -98,12 +101,14 @@ public class QuickDaoFactory {
      */
     public <T extends IQuickDao<M>, M> T getSubQuickDao(Class<T> daoClazz, Class<M> clazz) {
         // 获取登录用户的信息
-        String name = PrivateDBEnums.path.getValue();
-        if (mCacheMap.get(name) != null) {
-            return (T) mCacheMap.get(name);
+        String userId = PrivateDBEnums.path.getValue();
+        if (mCacheMap.get(userId) != null) {
+            return (T) mCacheMap.get(userId);
         }
-        initSQLite(name);
-        return getQuickDao(name, daoClazz, clazz, mSubSQLiteDatabase);
+        initSQLite(userId);
+        T quickDao = getQuickDao(userId, daoClazz, clazz, mSubSQLiteDatabase);
+        quickDao.setSubQuickDao(true);
+        return quickDao;
     }
 
     /**
@@ -113,12 +118,47 @@ public class QuickDaoFactory {
         return getSubQuickDao(QuickDao.class, clazz);
     }
 
-    private void initSQLite(String name) {
-        File dbFile = QuickDaoUtils.getFile(mContext, name);
-        if (!dbFile.exists()) {
-            mSubSQLiteDatabase = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
-        } else {
-            mSubSQLiteDatabase = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
+    private void initSQLite(String userId) {
+        if (TextUtils.isEmpty(userId)) {
+            return;
+        }
+        this.mUserId = userId;
+        closeSubSQLiteDatabase();
+        mSubSQLiteDatabase = QuickDaoUtils.getPrivateSQLiteDatabase(mContext, userId);
+    }
+
+
+    public void closeSQLiteDatabase() {
+        if (mSqLiteDatabase != null && mSqLiteDatabase.isOpen()) {
+            mSqLiteDatabase.close();
+            mSqLiteDatabase = null;
+        }
+    }
+
+    public void closeSubSQLiteDatabase() {
+        if (mSubSQLiteDatabase != null && mSubSQLiteDatabase.isOpen()) {
+            mSubSQLiteDatabase.close();
+            mSubSQLiteDatabase = null;
+        }
+    }
+
+    public void closeAll() {
+        closeSQLiteDatabase();
+        closeSubSQLiteDatabase();
+    }
+
+    public void clearCache() {
+        // 查一下
+        closeAll();
+        init(mContext);
+        initSQLite(mUserId);
+        for (Map.Entry<String, IQuickDao> entry : mCacheMap.entrySet()) {
+            IQuickDao quickDao = entry.getValue();
+            if (quickDao.isSubQuickDao()) {
+                quickDao.init(mSubSQLiteDatabase);
+            } else {
+                quickDao.init(mSqLiteDatabase);
+            }
         }
     }
 }

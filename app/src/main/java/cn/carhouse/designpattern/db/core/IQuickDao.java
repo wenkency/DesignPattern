@@ -14,6 +14,13 @@ public interface IQuickDao<T> {
     void init(SQLiteDatabase sqLiteDatabase, Class<T> clazz);
 
     /**
+     * 更新数据库时，重新调一下
+     * @param sqLiteDatabase
+     */
+    void init(SQLiteDatabase sqLiteDatabase);
+
+
+    /**
      * 插入对象
      */
     long insert(T bean);
@@ -66,7 +73,14 @@ public interface IQuickDao<T> {
      */
     void execSQL(String sql);
 
+    boolean isSubQuickDao();
+
+    void setSubQuickDao(boolean isSubQuickDao);
+
+
     interface OnInsertListener {
         void onInserted();
     }
+
+
 }

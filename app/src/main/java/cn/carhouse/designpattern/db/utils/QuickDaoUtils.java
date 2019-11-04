@@ -14,7 +14,18 @@ import java.util.Map;
 import cn.carhouse.designpattern.db.annotation.DbField;
 import cn.carhouse.designpattern.db.annotation.DbTable;
 
+/**
+ * 数据库工具类
+ */
 public class QuickDaoUtils {
+
+    // files/database/
+    public static final String SUB_DIR = "database";
+    // 私有数据库名称
+    public static final String PRIVATE_DB = "login.db";
+    // 应用数据库的名称
+    public static final String COMM_DB = "user.db";
+
     /**
      * 建表的Sql语句
      */
@@ -87,12 +98,74 @@ public class QuickDaoUtils {
         return entity.getSimpleName();
     }
 
+    /**
+     * 获取公有数据库
+     */
+    public static SQLiteDatabase getPublicSQLiteDatabase(Context context) {
+        SQLiteDatabase sqLiteDatabase;
+        File dbFile = QuickDaoUtils.getFile(context, QuickDaoUtils.COMM_DB);
+        if (!dbFile.exists()) {
+            sqLiteDatabase = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
+        } else {
+            sqLiteDatabase = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
+        }
+        return sqLiteDatabase;
+    }
+
+    /**
+     * 获取私有数据库
+     *
+     * @param context
+     * @param userId
+     * @return
+     */
+    public static SQLiteDatabase getPrivateSQLiteDatabase(Context context, String userId) {
+        SQLiteDatabase sqLiteDatabase;
+        File dbFile = QuickDaoUtils.getPrivateFile(context, userId);
+        if (!dbFile.exists()) {
+            sqLiteDatabase = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
+        } else {
+            sqLiteDatabase = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
+        }
+        return sqLiteDatabase;
+    }
+
+    /**
+     * 根据名称创建公有数据库的文件
+     */
     public static File getFile(Context context, String name) {
-        File directory = new File(context.getFilesDir(), "database");
+        File directory = getDatabaseDir(context);
+        File file = new File(directory, name);
+        if (file != null && !file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+        return file;
+    }
+
+    /**
+     * 公有数据库的目录
+     */
+    private static File getDatabaseDir(Context context) {
+        File directory = new File(context.getFilesDir(), SUB_DIR);
         if (!directory.exists()) {
             directory.mkdirs();
         }
-        File file = new File(directory, name);
+        return directory;
+    }
+
+    /**
+     * 根据UerID创建私有数据库文件
+     */
+    public static File getPrivateFile(Context context, String userId) {
+        File directory = new File(getDatabaseDir(context), userId);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        File file = new File(directory, PRIVATE_DB);
         if (file != null && !file.exists()) {
             try {
                 file.createNewFile();
@@ -108,6 +181,9 @@ public class QuickDaoUtils {
      * key:表格列名   value:成员字段
      */
     public static Map<String, Field> getTableFields(Class entity, SQLiteDatabase sqLite) {
+        if (sqLite == null || entity == null) {
+            return null;
+        }
         Map<String, Field> tableFields = new HashMap<>();
         // 1.取到所有的列名
         String sql = "select * from " + getTableName(entity) + " limit 1,0";// 空表
@@ -127,6 +203,9 @@ public class QuickDaoUtils {
                     break;
                 }
             }
+        }
+        if (!cursor.isClosed()) {
+            cursor.close();
         }
         return tableFields;
     }

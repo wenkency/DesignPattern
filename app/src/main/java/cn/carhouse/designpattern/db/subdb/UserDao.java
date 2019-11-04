@@ -18,7 +18,7 @@ public class UserDao extends QuickDao<User> {
         // 2. 查看数据库里面有没有这个用户
         // 有就更新用户信息
         // 没有就插入一条信息
-        User user = getUserById(bean.getId());
+        User user = getUserById(bean.getUserId());
         if (user != null) {
             // 更新数据
             update(bean, user);
@@ -31,9 +31,9 @@ public class UserDao extends QuickDao<User> {
     /**
      * 根据ID查询用户
      */
-    public User getUserById(int id) {
+    public User getUserById(String id) {
         User where = new User();
-        where.setId(id);
+        where.setUserId(id);
         return getUser(where);
     }
 

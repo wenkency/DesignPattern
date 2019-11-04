@@ -47,6 +47,10 @@ public class QuerySupport<T> {
         this.mTableFields = tableFields;
         mTableName = QuickDaoUtils.getTableName(mClass);
     }
+    public void init(SQLiteDatabase sqLiteDatabase,Map<String, Field> tableFields) {
+        this.mSQLiteDatabase = sqLiteDatabase;
+        this.mTableFields = tableFields;
+    }
 
     public QuerySupport columns(String... columns) {
         this.mQueryColumns = columns;

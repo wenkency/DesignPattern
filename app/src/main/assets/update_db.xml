@@ -8,8 +8,9 @@
                 name TEXT,
                 password TEXT,
                 loginName TEXT,
-                lastLoginTime,
-                user_id Integer primary key
+                lastLoginTime TEXT,
+                state INTEGER,
+                userId TEXT
                 );
             </SqlCreateTable>
         </CreateDb>
@@ -27,27 +28,25 @@
     </CreateVersion>
     <UpdateStep versionFrom="V002" versionTo="V003">
         <UpdateDb name="login">
-            <SqlBefore>alter table tb_photo rename to bak_tb_photo;</SqlBefore>
+            <SqlBefore>alter table tb_photo rename to back_tb_photo;</SqlBefore>
             <SqlAfter>
-                insert into tb_photo(time,
-                path)
+                insert into tb_photo(time, path)
                 select time,path
-                from bak_tb_photo;
+                from back_tb_photo;
             </SqlAfter>
             <SqlAfter>
-                drop table if exists bak_tb_photo;
+                drop table if exists back_tb_photo;
             </SqlAfter>
         </UpdateDb>
         <UpdateDb name="user">
-            <SqlBefore>alter table tb_user rename to bak_t_user;</SqlBefore>
+            <SqlBefore>alter table tb_user rename to back_tb_user;</SqlBefore>
             <SqlAfter>
-                insert into tb_user(name,
-                password)
-                select name,password
-                from bak_tb_user;
+                insert into tb_user(name,password,state,userId)
+                select name,password,state,userId
+                from back_tb_user;
             </SqlAfter>
             <SqlAfter>
-                drop table if exists bak_t_user;
+                drop table if exists back_tb_user;
             </SqlAfter>
         </UpdateDb>
     </UpdateStep>

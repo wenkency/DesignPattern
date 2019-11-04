@@ -14,7 +14,6 @@ import cn.carhouse.designpattern.db.utils.ThreadUtils;
  * 数据库操作类
  */
 public class QuickDao<T> implements IQuickDao<T> {
-    private boolean isInit = false;
     private SQLiteDatabase mSQLite;
     private Class<T> mEntity;
     // 缓存表结构里面对应的成员字段，目的是怕对象添加新字段，表没有添加
@@ -22,22 +21,32 @@ public class QuickDao<T> implements IQuickDao<T> {
     private Map<String, Field> mTableFields;
     private String mTableName;
     private QuerySupport<T> mQuerySupport;
+    private boolean isSubQuickDao;
 
+    @Override
     public void init(SQLiteDatabase sqLite, Class<T> entity) {
         this.mSQLite = sqLite;
         this.mEntity = entity;
-        if (!isInit) {
-            if (!sqLite.isOpen()) {
-                return;
-            }
-            mTableName = QuickDaoUtils.getTableName(mEntity);
-            String sql = QuickDaoUtils.getSql(entity);
-            sqLite.execSQL(sql);
-            mTableFields = QuickDaoUtils.getTableFields(mEntity, mSQLite);
-            isInit = true;
+        if (!sqLite.isOpen()) {
+            return;
         }
+        mTableName = QuickDaoUtils.getTableName(mEntity);
+        String sql = QuickDaoUtils.getSql(entity);
+        sqLite.execSQL(sql);
+        mTableFields = QuickDaoUtils.getTableFields(mEntity, mSQLite);
     }
 
+    @Override
+    public void init(SQLiteDatabase sqLite) {
+        if (mEntity == null || !sqLite.isOpen()) {
+            return;
+        }
+        this.mSQLite = sqLite;
+        mTableFields = QuickDaoUtils.getTableFields(mEntity, mSQLite);
+        if (mQuerySupport != null) {
+            mQuerySupport.init(mSQLite, mTableFields);
+        }
+    }
 
     @Override
     public void insert(List<T> beans) {
@@ -107,6 +116,16 @@ public class QuickDao<T> implements IQuickDao<T> {
     @Override
     public void execSQL(String sql) {
         mSQLite.execSQL(sql);
+    }
+
+    @Override
+    public boolean isSubQuickDao() {
+        return isSubQuickDao;
+    }
+
+    @Override
+    public void setSubQuickDao(boolean isSubQuickDao) {
+        this.isSubQuickDao = isSubQuickDao;
     }
 
     public String getTableName() {
