@@ -3,6 +3,7 @@ package cn.carhouse.designpattern.application;
 import android.app.Application;
 
 import cn.carhouse.designpattern.db.core.QuickDaoFactory;
+import cn.carhouse.designpattern.skin.SkinManager;
 
 public class BaseApplication extends Application {
     @Override
@@ -10,5 +11,7 @@ public class BaseApplication extends Application {
         super.onCreate();
         // 数据库初始化
         QuickDaoFactory.getInstance().init(this);
+        // 皮肤
+        SkinManager.getInstance().init(this);
     }
 }

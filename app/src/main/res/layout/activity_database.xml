@@ -8,6 +8,7 @@
     tools:context=".DatabaseActivity">
 
     <Button
+        android:textColor="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_margin="5dp"
