@@ -1,2 +1,2 @@
-include ':app',  ':lib-aspectj'
+include ':app',  ':lib-aspectj', ':lib-base', ':lib-module'
 rootProject.name='DesignPattern'

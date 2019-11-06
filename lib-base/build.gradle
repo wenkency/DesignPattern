@@ -1,39 +1,40 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
-// 引用及使用
+
+// 声明及引用
 def app = rootProject.ext.app
-def appId = rootProject.ext.appId
+def libraries = rootProject.ext.dependencies
 
 android {
     compileSdkVersion app.compileSdkVersion
+
     defaultConfig {
-        applicationId appId['app']
         minSdkVersion app.minSdkVersion
         targetSdkVersion app.targetSdkVersion
         versionCode app.versionCode
         versionName app.versionName
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-    implementation project(path: ':lib-base')
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation project(path: ':lib-aspectj')
 
-
-    // 模块依赖
-    if (isModule) {
-        implementation project(path: ':lib-module')
-    }
+    /*循环收入包*/
+    libraries.each { k, v -> api v }
 }
-
-

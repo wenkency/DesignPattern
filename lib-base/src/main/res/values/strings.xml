@@ -1,0 +1,5 @@
+<resources>
+    <!--整体换字体-->
+    <string name="typeface">font/global.ttf</string>
+    <string name="typeface2">font/specified.ttf</string>
+</resources>

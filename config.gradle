@@ -1,0 +1,29 @@
+/*整个项目的配置信息*/
+ext {
+    // false : 组件模式（可以独立运行）
+    // true  : 依赖模式
+    isModule = false
+
+    app = [
+            compileSdkVersion: 28,
+            minSdkVersion    : 15,
+            targetSdkVersion : 28,
+            versionCode      : 1,
+            versionName      : "1.0"
+    ]
+
+    appId = [
+            app   : "cn.carhouse.designpattern",
+            moudle: "cn.lven.module"
+    ]
+
+    // 项目支持包配置
+    appcompat = "1.1.0"
+    constraintlayout = "1.1.3"
+
+    dependencies = [
+            "appcompat"       : "androidx.appcompat:appcompat:${appcompat}",
+            "constraintlayout": "androidx.constraintlayout:constraintlayout:${constraintlayout}"
+    ]
+
+}

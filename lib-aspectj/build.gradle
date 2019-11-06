@@ -1,4 +1,8 @@
 apply plugin: 'com.android.library'
+// 声明及引用
+def app = rootProject.ext.app
+def libraries = rootProject.ext.dependencies
+
 /*AspectJ*/
 buildscript {
     repositories {
@@ -11,14 +15,14 @@ buildscript {
 }
 /*AspectJ*/
 android {
-    compileSdkVersion 28
+    compileSdkVersion app.compileSdkVersion
 
 
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion app.minSdkVersion
+        targetSdkVersion app.targetSdkVersion
+        versionCode app.versionCode
+        versionName app.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -35,10 +39,11 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     /*AspectJ*/
     api files('libs/aspectjrt.jar')
+
+    libraries.each { k, v -> api v }
 }
