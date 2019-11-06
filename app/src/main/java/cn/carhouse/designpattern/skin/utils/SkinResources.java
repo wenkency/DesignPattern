@@ -134,6 +134,12 @@ public class SkinResources {
         return null;
     }
 
+    /**
+     * 获得字体
+     *
+     * @param resId
+     * @return
+     */
     public Typeface getTypeface(int resId) {
         String skinTypefacePath = getString(resId);
         if (TextUtils.isEmpty(skinTypefacePath)) {
@@ -148,7 +154,8 @@ public class SkinResources {
             }
             typeface = Typeface.createFromAsset(mSkinResources.getAssets(), skinTypefacePath);
             return typeface;
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return Typeface.DEFAULT;
     }

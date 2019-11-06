@@ -2,6 +2,7 @@ package cn.carhouse.designpattern.skin;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -15,6 +16,8 @@ import org.xmlpull.v1.XmlPullParser;
 import java.util.Observable;
 import java.util.Observer;
 
+import cn.carhouse.designpattern.skin.utils.SkinThemeUtils;
+
 /**
  * 拷贝：AppCompatDelegateImpl
  */
@@ -24,10 +27,10 @@ public class SkinFactory implements LayoutInflater.Factory2, Observer {
     private SkinLayoutInflater mAppCompatViewInflater;
     private SkinAttribute mAttribute;
 
-    public SkinFactory(Activity activity) {
+    public SkinFactory(Activity activity, Typeface skinTypeface) {
         this.mActivity = activity;
         mAppCompatViewInflater = new SkinLayoutInflater();
-        mAttribute = new SkinAttribute();
+        mAttribute = new SkinAttribute(skinTypeface);
     }
 
     @Override
@@ -71,8 +74,11 @@ public class SkinFactory implements LayoutInflater.Factory2, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        if (mAttribute != null) {
-            mAttribute.applySkin();
+        if (mAttribute != null && mActivity != null) {
+            Typeface skinTypeface = SkinThemeUtils.getSkinTypeface(mActivity);
+            mAttribute.applySkin(skinTypeface);
+            // 更换状态栏
+            SkinThemeUtils.updateStatusBar(mActivity);
         }
     }
 

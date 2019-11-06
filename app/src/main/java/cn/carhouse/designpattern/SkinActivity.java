@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import java.io.File;
 
@@ -17,17 +18,11 @@ public class SkinActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_skin);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fl_content,new AppFragment());
+        fragmentTransaction.commit();
     }
 
-    public void changeSkin(View view) {
-        File file = new File(Environment.getExternalStorageDirectory(), "app.skin");
-        if (file.exists()) {
-            SkinManager.getInstance().loadSkin(file.getAbsolutePath());
-        }
-    }
 
-    public void resetSkin(View view) {
-        SkinManager.getInstance().loadSkin("");
-    }
 
 }

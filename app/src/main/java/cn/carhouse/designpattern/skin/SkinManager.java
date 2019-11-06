@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import java.lang.reflect.Method;
@@ -17,6 +19,7 @@ import cn.carhouse.designpattern.skin.utils.SkinResources;
  * 皮肤管理类
  */
 public class SkinManager extends Observable {
+    private static Handler mHandler = new Handler(Looper.getMainLooper());
     private static SkinManager mInstance;
     private Application mApplication;
 
@@ -80,10 +83,15 @@ public class SkinManager extends Observable {
             SkinResources.getInstance().applySkin(resources, packName);
             // 保存当前使用的皮肤包
             SkinPreference.getInstance().setSkin(skinPath);
-            // 应用皮肤包
-            setChanged();
-            // 通知观察者
-            notifyObservers();
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    // 应用皮肤包
+                    setChanged();
+                    // 通知观察者
+                    notifyObservers();
+                }
+            });
         } catch (Throwable e) {
             e.printStackTrace();
         }

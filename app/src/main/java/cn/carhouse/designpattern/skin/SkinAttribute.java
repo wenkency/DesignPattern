@@ -1,9 +1,9 @@
 package cn.carhouse.designpattern.skin;
 
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -35,16 +35,20 @@ public class SkinAttribute {
 
     private List<SkinView> mSkinViews = new ArrayList<>();
 
+    Typeface mSkinTypeface;
+
+    public SkinAttribute(Typeface skinTypeface) {
+        this.mSkinTypeface = skinTypeface;
+    }
+
     public void load(View view, AttributeSet attrs) {
         if (view == null || attrs == null || attrs.getAttributeCount() <= 0) {
             return;
         }
         List<SkinAttr> skinAttrs = new ArrayList<>();
-        Log.e("attributeName",view.toString());
         // 循环过滤可以换肤的属性
         for (int i = 0; i < attrs.getAttributeCount(); i++) {
             String attributeName = attrs.getAttributeName(i);
-            Log.e("attributeName",attributeName);
             String attributeValue = attrs.getAttributeValue(i);
             // textColor:
             if (!mAttributes.contains(attributeName) || attributeValue.startsWith("#")) {
@@ -65,11 +69,10 @@ public class SkinAttribute {
                 skinAttrs.add(attr);
             }
         }
-        Log.e("attributeName","------------------------------------");
-        if (!skinAttrs.isEmpty()) {
+        if (!skinAttrs.isEmpty() || view instanceof TextView) {
             try {
                 SkinView skinView = new SkinView(view, skinAttrs);
-                skinView.applySkin();
+                skinView.applySkin(mSkinTypeface);
                 mSkinViews.add(skinView);
             } catch (Throwable e) {
                 e.printStackTrace();
@@ -80,10 +83,10 @@ public class SkinAttribute {
     /**
      * 应用皮肤
      */
-    public void applySkin() {
+    public void applySkin(Typeface typeface) {
         for (SkinView skinView : mSkinViews) {
             try {
-                skinView.applySkin();
+                skinView.applySkin(typeface);
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -108,13 +111,13 @@ public class SkinAttribute {
         /**
          * 应用皮肤
          */
-        public void applySkin() {
+        public void applySkin(Typeface typeface) {
             for (SkinAttr skinAttr : mSkinAttrs) {
+
                 Drawable left = null, top = null, right = null, bottom = null;
                 switch (skinAttr.attributeName) {
                     case "background":
-                        Object background = SkinResources.getInstance().getBackground(skinAttr
-                                .resId);
+                        Object background = SkinResources.getInstance().getBackground(skinAttr.resId);
                         // Color
                         if (background instanceof Integer) {
                             view.setBackgroundColor((Integer) background);
@@ -154,6 +157,18 @@ public class SkinAttribute {
                     ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(left, top, right,
                             bottom);
                 }
+
+                // 更换字体
+                applySkinTypeface(typeface);
+            }
+        }
+
+        private Typeface mTypeface;
+
+        private void applySkinTypeface(Typeface typeface) {
+            if (mTypeface != typeface && (view instanceof TextView)) {
+                mTypeface = typeface;
+                ((TextView) view).setTypeface(typeface);
             }
         }
     }
