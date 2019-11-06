@@ -142,11 +142,11 @@ public class SkinResources {
      */
     public Typeface getTypeface(int resId) {
         String skinTypefacePath = getString(resId);
+        Typeface typeface = Typeface.DEFAULT;
         if (TextUtils.isEmpty(skinTypefacePath)) {
-            return Typeface.DEFAULT;
+            return typeface;
         }
         try {
-            Typeface typeface;
             if (isDefaultSkin) {
                 typeface = Typeface.createFromAsset(mAppResources.getAssets(), skinTypefacePath);
                 return typeface;
@@ -154,9 +154,9 @@ public class SkinResources {
             }
             typeface = Typeface.createFromAsset(mSkinResources.getAssets(), skinTypefacePath);
             return typeface;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
-        return Typeface.DEFAULT;
+        return typeface;
     }
 }

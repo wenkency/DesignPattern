@@ -31,6 +31,7 @@ public class SkinAttribute {
         mAttributes.add("drawableTop");
         mAttributes.add("drawableRight");
         mAttributes.add("drawableBottom");
+        mAttributes.add("skinTypeface");
     }
 
     private List<SkinView> mSkinViews = new ArrayList<>();
@@ -69,7 +70,7 @@ public class SkinAttribute {
                 skinAttrs.add(attr);
             }
         }
-        if (!skinAttrs.isEmpty() || view instanceof TextView) {
+        if (!skinAttrs.isEmpty() || view instanceof TextView || view instanceof SkinViewSupport) {
             try {
                 SkinView skinView = new SkinView(view, skinAttrs);
                 skinView.applySkin(mSkinTypeface);
@@ -103,6 +104,9 @@ public class SkinAttribute {
         View view;
         List<SkinAttr> mSkinAttrs;
 
+        // 字体
+        private Typeface mTypeface;
+
         public SkinView(View view, List<SkinAttr> skinAttrs) {
             this.view = view;
             this.mSkinAttrs = skinAttrs;
@@ -113,6 +117,10 @@ public class SkinAttribute {
          */
         public void applySkin(Typeface typeface) {
             for (SkinAttr skinAttr : mSkinAttrs) {
+                // 更换字体
+                applySkinTypeface(typeface);
+                // 自字义View
+                applySkinViewSupport();
 
                 Drawable left = null, top = null, right = null, bottom = null;
                 switch (skinAttr.attributeName) {
@@ -150,6 +158,10 @@ public class SkinAttribute {
                     case "drawableBottom":
                         bottom = SkinResources.getInstance().getDrawable(skinAttr.resId);
                         break;
+                    case "skinTypeface":
+                        Typeface face = SkinResources.getInstance().getTypeface(skinAttr.resId);
+                        applySkinTypeface(face);
+                        break;
                     default:
                         break;
                 }
@@ -158,12 +170,16 @@ public class SkinAttribute {
                             bottom);
                 }
 
-                // 更换字体
-                applySkinTypeface(typeface);
+
             }
         }
 
-        private Typeface mTypeface;
+        private void applySkinViewSupport() {
+            if (view instanceof SkinViewSupport) {
+                ((SkinViewSupport) view).applySkin(SkinResources.getInstance());
+            }
+        }
+
 
         private void applySkinTypeface(Typeface typeface) {
             if (mTypeface != typeface && (view instanceof TextView)) {

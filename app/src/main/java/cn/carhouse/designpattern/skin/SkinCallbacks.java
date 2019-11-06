@@ -27,7 +27,7 @@ public class SkinCallbacks extends LifecycleCallbacks {
             field.set(layoutInflater, false);
 
             Typeface skinTypeface = SkinThemeUtils.getSkinTypeface(activity);
-            SkinFactory skinFactory = new SkinFactory(activity,skinTypeface);
+            SkinFactory skinFactory = new SkinFactory(activity, skinTypeface);
             LayoutInflaterCompat.setFactory2(layoutInflater, skinFactory);
             // 注册皮肤变换监听
             SkinManager.getInstance().addObserver(skinFactory);
@@ -46,6 +46,13 @@ public class SkinCallbacks extends LifecycleCallbacks {
             // 取消皮肤变换监听
             SkinManager.getInstance().deleteObserver(skinFactory);
             skinFactory.destroyed();
+        }
+    }
+
+    public void updateSkin(Activity activity) {
+        SkinFactory skinFactory = skinFactoryMap.get(activity);
+        if (skinFactory != null) {
+            skinFactory.update(null, null);
         }
     }
 }

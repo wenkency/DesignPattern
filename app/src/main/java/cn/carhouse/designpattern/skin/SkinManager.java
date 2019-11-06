@@ -1,5 +1,6 @@
 package cn.carhouse.designpattern.skin;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -22,6 +23,7 @@ public class SkinManager extends Observable {
     private static Handler mHandler = new Handler(Looper.getMainLooper());
     private static SkinManager mInstance;
     private Application mApplication;
+    private SkinCallbacks skinCallbacks;
 
     public static SkinManager getInstance() {
         if (mInstance == null) {
@@ -41,7 +43,8 @@ public class SkinManager extends Observable {
         // 初始化皮肤资源管理器
         SkinResources.init(application);
         // 注册Activity监听
-        application.registerActivityLifecycleCallbacks(new SkinCallbacks());
+        skinCallbacks = new SkinCallbacks();
+        application.registerActivityLifecycleCallbacks(skinCallbacks);
         // 加载资源包
         loadSkin(SkinPreference.getInstance().getSkin());
     }
@@ -94,6 +97,15 @@ public class SkinManager extends Observable {
             });
         } catch (Throwable e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * 提供一些特殊的场景
+     */
+    public void updateSkin(Activity activity) {
+        if (skinCallbacks != null) {
+            skinCallbacks.updateSkin(activity);
         }
     }
 }

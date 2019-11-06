@@ -5,13 +5,14 @@
     android:background="@color/colorPrimary"
     android:orientation="vertical">
 
+    <!--单独字体-->
     <Button
         android:id="@+id/changeSkin"
-        android:background="@color/colorPrimary"
-        android:layout_margin="10dp"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:background="@color/colorPrimary"
         android:gravity="center"
         android:text="换肤"
         android:textColor="@color/colorText"
@@ -20,10 +21,10 @@
 
     <Button
         android:id="@+id/resetSkin"
-        android:layout_margin="10dp"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_gravity="center"
+        android:layout_margin="10dp"
         android:gravity="center"
         android:text="还原"
         android:textColor="@color/colorText"

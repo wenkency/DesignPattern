@@ -32,4 +32,5 @@
         <item name="android:windowExitAnimation">@anim/slide_top_out</item>
     </style>
 
+
 </resources>
