@@ -1,7 +1,6 @@
 package cn.carhouse.designpattern;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +16,7 @@ import cn.carhouse.designpattern.bean.User;
 import cn.carhouse.designpattern.db.core.IQuickDao;
 import cn.carhouse.designpattern.db.core.QuerySupport;
 import cn.carhouse.designpattern.db.core.QuickDaoFactory;
+import cn.carhouse.designpattern.db.subdb.PrivateDBImpl;
 import cn.carhouse.designpattern.db.subdb.UserDao;
 import cn.carhouse.designpattern.db.update.UpdateDbUtils;
 
@@ -24,7 +24,7 @@ import cn.carhouse.designpattern.db.update.UpdateDbUtils;
  * 数据库测试类
  */
 public class DatabaseActivity extends AppCompatActivity {
-
+    PrivateDBImpl impl = PrivateDBImpl.getPrivateDBImpl();
     private UserDao mUserDao;
     UpdateDbUtils updateDbUtils = new UpdateDbUtils();
     private TextView tv;
@@ -99,17 +99,17 @@ public class DatabaseActivity extends AppCompatActivity {
         Photo photo = new Photo();
         photo.setPath("data/data/my.jpg");
         photo.setTime(new Date().toString());
-        IQuickDao<Photo> photoDao = QuickDaoFactory.getInstance().getSubQuickDao(Photo.class);
+        IQuickDao<Photo> photoDao = QuickDaoFactory.getInstance().getSubQuickDao(Photo.class, impl);
         long insert = photoDao.insert(photo);
         Toast.makeText(this, "执行成功!" + insert, Toast.LENGTH_LONG).show();
     }
 
     public void subQuery(View view) {
-        IQuickDao<Photo> photoDao = QuickDaoFactory.getInstance().getSubQuickDao(Photo.class);
+        IQuickDao<Photo> photoDao = QuickDaoFactory.getInstance().getSubQuickDao(Photo.class, impl);
         List<Photo> photos = photoDao.query().queryAll();
-        StringBuffer sb=new StringBuffer();
+        StringBuffer sb = new StringBuffer();
         for (Photo u : photos) {
-            sb.append(u.toString()+"\n");
+            sb.append(u.toString() + "\n");
         }
         tv.setText("subQuery-->" + sb.toString());
     }
@@ -118,9 +118,9 @@ public class DatabaseActivity extends AppCompatActivity {
         QuerySupport<User> query = mUserDao.query();
         query.limit("0 , 10");
         List<User> list = query.query();
-        StringBuffer sb=new StringBuffer();
+        StringBuffer sb = new StringBuffer();
         for (User u : list) {
-            sb.append(u.toString()+"\n");
+            sb.append(u.toString() + "\n");
         }
         tv.setText("query-->" + sb.toString());
     }
@@ -131,9 +131,9 @@ public class DatabaseActivity extends AppCompatActivity {
         query.asyncQuery(new QuerySupport.OnAsyncQueryListener<User>() {
             @Override
             public void onAsyncQueried(List<User> items) {
-                StringBuffer sb=new StringBuffer();
+                StringBuffer sb = new StringBuffer();
                 for (User u : items) {
-                    sb.append(u.toString()+"\n");
+                    sb.append(u.toString() + "\n");
                 }
                 tv.setText("asyncQuery-->" + sb.toString());
             }

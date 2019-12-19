@@ -39,7 +39,7 @@ public class QuickDao<T> implements IQuickDao<T> {
 
     @Override
     public void init(SQLiteDatabase sqLite) {
-        if (mEntity == null || !sqLite.isOpen()) {
+        if (mEntity == null) {
             return;
         }
         this.mSQLite = sqLite;

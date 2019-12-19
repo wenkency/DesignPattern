@@ -10,7 +10,7 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         // 数据库初始化
-        QuickDaoFactory.getInstance().init(this);
+        QuickDaoFactory.getInstance().initPublicSQLite(this);
         // 皮肤
         SkinManager.getInstance().init(this);
     }

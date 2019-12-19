@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.carhouse.designpattern.db.subdb.PrivateDBEnums;
+import cn.carhouse.designpattern.db.subdb.PrivateDBSupport;
 import cn.carhouse.designpattern.db.utils.QuickDaoUtils;
 
 /**
@@ -47,12 +47,22 @@ public class QuickDaoFactory {
     }
 
     /**
-     * 初始化方法:主要是创建SQLiteDatabase
+     * 初始化方法:主要是创建公有的SQLiteDatabase
      */
-    public void init(Context context) {
+    public void initPublicSQLite(Context context) {
         this.mContext = context;
-        closeSQLiteDatabase();
         mSqLiteDatabase = QuickDaoUtils.getPublicSQLiteDatabase(context);
+    }
+
+    /**
+     * 初始化方法:主要是创建私有的SQLiteDatabase
+     */
+    private void initPrivateSQLite(String userId) {
+        if (TextUtils.isEmpty(userId)) {
+            return;
+        }
+        this.mUserId = userId;
+        mSubSQLiteDatabase = QuickDaoUtils.getPrivateSQLiteDatabase(mContext, userId);
     }
 
     /**
@@ -62,7 +72,9 @@ public class QuickDaoFactory {
         if (sqLiteDatabase == null) {
             throw new RuntimeException("SQLiteDatabase is null ");
         }
-
+        if (mCacheMap.get(key) != null) {
+            return (T) mCacheMap.get(key);
+        }
         T dao = null;
         try {
             dao = daoClazz.newInstance();
@@ -91,10 +103,10 @@ public class QuickDaoFactory {
     /**
      * 获取分库操作对象
      */
-    public <T extends IQuickDao<M>, M> T getSubQuickDao(Class<T> daoClazz, Class<M> clazz) {
+    public <T extends IQuickDao<M>, M> T getSubQuickDao(Class<T> daoClazz, Class<M> clazz, PrivateDBSupport support) {
         // 获取登录用户的信息
-        String userId = PrivateDBEnums.path.getValue();
-        initSQLite(userId);
+        String userId = support.getId();
+        initPrivateSQLite(userId);
         T quickDao = getQuickDao(userId, daoClazz, clazz, mSubSQLiteDatabase);
         quickDao.setSubQuickDao(true);
         return quickDao;
@@ -103,16 +115,8 @@ public class QuickDaoFactory {
     /**
      * 获取分库操作对象
      */
-    public <M> IQuickDao<M> getSubQuickDao(Class<M> clazz) {
-        return getSubQuickDao(QuickDao.class, clazz);
-    }
-
-    private void initSQLite(String userId) {
-        if (TextUtils.isEmpty(userId)) {
-            return;
-        }
-        this.mUserId = userId;
-        mSubSQLiteDatabase = QuickDaoUtils.getPrivateSQLiteDatabase(mContext, userId);
+    public <M> IQuickDao<M> getSubQuickDao(Class<M> clazz, PrivateDBSupport support) {
+        return getSubQuickDao(QuickDao.class, clazz, support);
     }
 
 
@@ -136,10 +140,10 @@ public class QuickDaoFactory {
     }
 
     public void clearCache() {
-        // 查一下
         closeAll();
-        init(mContext);
-        initSQLite(mUserId);
+        // 查一下
+        initPublicSQLite(mContext);
+        initPrivateSQLite(mUserId);
         // 更新查询
         for (Map.Entry<String, IQuickDao> entry : mCacheMap.entrySet()) {
             IQuickDao quickDao = entry.getValue();
