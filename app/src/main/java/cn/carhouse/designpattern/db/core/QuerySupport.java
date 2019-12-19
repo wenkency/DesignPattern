@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.carhouse.designpattern.db.utils.HandlerUtils;
 import cn.carhouse.designpattern.db.utils.QuickDaoUtils;
 import cn.carhouse.designpattern.db.utils.ThreadUtils;
 
@@ -18,7 +19,7 @@ import cn.carhouse.designpattern.db.utils.ThreadUtils;
  * 查询封装对象
  */
 public class QuerySupport<T> {
-    private static Handler mHandler = new Handler(Looper.getMainLooper());
+
     // 查询的列
     private String[] mQueryColumns;
     // 查询的条件
@@ -119,7 +120,7 @@ public class QuerySupport<T> {
     }
 
     private void asyncQueryCallback(final List<T> items) {
-        mHandler.post(new Runnable() {
+        HandlerUtils.getHandler().post(new Runnable() {
             @Override
             public void run() {
                 if (onAsynQueryListener != null) {

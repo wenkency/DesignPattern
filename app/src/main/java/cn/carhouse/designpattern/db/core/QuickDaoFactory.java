@@ -26,13 +26,11 @@ public class QuickDaoFactory {
 
     // 定义一个用于实现分库的数据库操作对象
     protected SQLiteDatabase mSubSQLiteDatabase;
-
-    private Class mEntity;
+    // 设计一个数据库连接池
+    protected Map<String, IQuickDao> mCacheMap = Collections.synchronizedMap(new HashMap<String, IQuickDao>());
 
     private String mUserId;
 
-    // 设计一个数据库连接池
-    protected Map<String, IQuickDao> mCacheMap = Collections.synchronizedMap(new HashMap<String, IQuickDao>());
 
     protected QuickDaoFactory() {
     }
@@ -64,21 +62,15 @@ public class QuickDaoFactory {
         if (sqLiteDatabase == null) {
             throw new RuntimeException("SQLiteDatabase is null ");
         }
-        this.mEntity = clazz;
-        // 从缓存取
-        IQuickDao quickDao = mCacheMap.get(key);
-        if (quickDao != null) {
-            return (T) quickDao;
-        }
+
         T dao = null;
         try {
             dao = daoClazz.newInstance();
             dao.init(sqLiteDatabase, clazz);
-            // 缓存
-            mCacheMap.put(key, dao);
         } catch (Throwable e) {
             e.printStackTrace();
         }
+        mCacheMap.put(key, dao);
         return dao;
     }
 
@@ -102,9 +94,6 @@ public class QuickDaoFactory {
     public <T extends IQuickDao<M>, M> T getSubQuickDao(Class<T> daoClazz, Class<M> clazz) {
         // 获取登录用户的信息
         String userId = PrivateDBEnums.path.getValue();
-        if (mCacheMap.get(userId) != null) {
-            return (T) mCacheMap.get(userId);
-        }
         initSQLite(userId);
         T quickDao = getQuickDao(userId, daoClazz, clazz, mSubSQLiteDatabase);
         quickDao.setSubQuickDao(true);
@@ -123,7 +112,6 @@ public class QuickDaoFactory {
             return;
         }
         this.mUserId = userId;
-        closeSubSQLiteDatabase();
         mSubSQLiteDatabase = QuickDaoUtils.getPrivateSQLiteDatabase(mContext, userId);
     }
 
@@ -152,6 +140,7 @@ public class QuickDaoFactory {
         closeAll();
         init(mContext);
         initSQLite(mUserId);
+        // 更新查询
         for (Map.Entry<String, IQuickDao> entry : mCacheMap.entrySet()) {
             IQuickDao quickDao = entry.getValue();
             if (quickDao.isSubQuickDao()) {

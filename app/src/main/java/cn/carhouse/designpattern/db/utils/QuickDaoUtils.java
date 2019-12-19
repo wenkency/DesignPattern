@@ -102,13 +102,8 @@ public class QuickDaoUtils {
      * 获取公有数据库
      */
     public static SQLiteDatabase getPublicSQLiteDatabase(Context context) {
-        SQLiteDatabase sqLiteDatabase;
         File dbFile = QuickDaoUtils.getFile(context, QuickDaoUtils.COMM_DB);
-        if (!dbFile.exists()) {
-            sqLiteDatabase = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
-        } else {
-            sqLiteDatabase = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
-        }
+        SQLiteDatabase sqLiteDatabase = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
         return sqLiteDatabase;
     }
 
@@ -122,11 +117,7 @@ public class QuickDaoUtils {
     public static SQLiteDatabase getPrivateSQLiteDatabase(Context context, String userId) {
         SQLiteDatabase sqLiteDatabase;
         File dbFile = QuickDaoUtils.getPrivateFile(context, userId);
-        if (!dbFile.exists()) {
-            sqLiteDatabase = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
-        } else {
-            sqLiteDatabase = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
-        }
+        sqLiteDatabase = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
         return sqLiteDatabase;
     }
 

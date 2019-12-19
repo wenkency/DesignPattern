@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
+import cn.carhouse.designpattern.db.utils.HandlerUtils;
 import cn.carhouse.designpattern.db.utils.QuickDaoUtils;
 import cn.carhouse.designpattern.db.utils.ThreadUtils;
 
@@ -72,10 +73,16 @@ public class QuickDao<T> implements IQuickDao<T> {
                     // 结束事务
                     mSQLite.endTransaction();
                 }
-                // 完成回调
-                if (onInsertListener != null) {
-                    onInsertListener.onInserted();
-                }
+                HandlerUtils.getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // 完成回调
+                        if (onInsertListener != null) {
+                            onInsertListener.onInserted();
+                        }
+                    }
+                });
+
             }
         });
     }

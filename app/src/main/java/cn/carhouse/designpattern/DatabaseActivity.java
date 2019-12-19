@@ -3,6 +3,7 @@ package cn.carhouse.designpattern;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,11 +27,13 @@ public class DatabaseActivity extends AppCompatActivity {
 
     private UserDao mUserDao;
     UpdateDbUtils updateDbUtils = new UpdateDbUtils();
+    private TextView tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_database);
+        tv = findViewById(R.id.tv);
         mUserDao = QuickDaoFactory.getInstance().getQuickDao(UserDao.class, User.class);
     }
 
@@ -49,7 +52,7 @@ public class DatabaseActivity extends AppCompatActivity {
             @Override
             public void onInserted() {
                 long end = System.currentTimeMillis() - begin;
-                Log.e("MainActivity", "insert-->" + end);
+                tv.setText("insert-->" + end);
             }
         });
     }
@@ -60,7 +63,7 @@ public class DatabaseActivity extends AppCompatActivity {
         where.setUserId("0");
         where.setName("Lven");
         int delete = mUserDao.delete(where);
-        Log.e("MainActivity", "delete-->" + delete);
+        tv.setText("delete-->" + delete);
     }
 
     public void update(View view) {
@@ -71,7 +74,7 @@ public class DatabaseActivity extends AppCompatActivity {
         User where = new User();
         where.setUserId("1");
         int update = mUserDao.update(bean);
-        Log.e("MainActivity", "update-->" + update);
+        tv.setText("update-->" + update);
     }
 
     public void defLogin(View view) {
@@ -104,18 +107,22 @@ public class DatabaseActivity extends AppCompatActivity {
     public void subQuery(View view) {
         IQuickDao<Photo> photoDao = QuickDaoFactory.getInstance().getSubQuickDao(Photo.class);
         List<Photo> photos = photoDao.query().queryAll();
+        StringBuffer sb=new StringBuffer();
         for (Photo u : photos) {
-            Log.e("MainActivity", u.toString());
+            sb.append(u.toString()+"\n");
         }
+        tv.setText("subQuery-->" + sb.toString());
     }
 
     public void query(View view) {
         QuerySupport<User> query = mUserDao.query();
         query.limit("0 , 10");
         List<User> list = query.query();
+        StringBuffer sb=new StringBuffer();
         for (User u : list) {
-            Log.e("MainActivity", u.toString());
+            sb.append(u.toString()+"\n");
         }
+        tv.setText("query-->" + sb.toString());
     }
 
     public void asyncQuery(View view) {
@@ -124,9 +131,11 @@ public class DatabaseActivity extends AppCompatActivity {
         query.asyncQuery(new QuerySupport.OnAsyncQueryListener<User>() {
             @Override
             public void onAsyncQueried(List<User> items) {
+                StringBuffer sb=new StringBuffer();
                 for (User u : items) {
-                    Log.e("MainActivity", u.toString());
+                    sb.append(u.toString()+"\n");
                 }
+                tv.setText("asyncQuery-->" + sb.toString());
             }
         });
     }
